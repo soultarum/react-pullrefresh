@@ -1,48 +1,15 @@
 import React from 'react'
-import styled, { keyframes } from 'styled-components'
 
-const rotating = keyframes`
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(270deg);
-  }
-`
-const dashed = keyframes`
-  0% {
-    stroke-dashoffset: 62px;
-  }
-  50% {
-    stroke-dashoffset: ${62 / 4}px;
-    transform: rotate(135deg);
-  }
-  100% {
-    stroke-dashoffset: 62px;
-    transform: rotate(450deg);
-  }
-`
+const RotatingSvgStyle = {
+  transformOrigin: "center",
+  animation: `rotating 1.4s linear infinite`
+}
 
-const Component = styled.div`
-  position: absolute;
-  z-index: ${props => props.zIndex};
-  left: 50%;
-  border-radius: 20px;
-  width: 40px;
-  height: 40px;
-  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
-`
-
-const RotatingSvg = styled.svg`
-  transform-origin: center;
-  animation: ${rotating} 1.4s linear infinite;
-`
-
-const DashedCircle = styled.circle`
-  stroke-dasharray: 62px;
-  transform-origin: center;
-  animation: ${dashed} 1.4s ease-in-out infinite;
-`
+const DashedcircleStyle = {
+  strokeDasharray: "62px",
+  transformOrigin: "center",
+  animation: `dashed 1.4s ease-in-out infinite`
+}
 
 export default (props, state) => {
   const { max, yRefreshing, y, phase } = state
@@ -50,29 +17,68 @@ export default (props, state) => {
   const p = Math.atan(y / max)
   const pMax = Math.atan(yRefreshing / max)
   const r = Math.PI * 10 * 2
-  const Svg = phase === 'refreshing' ? RotatingSvg : 'svg'
-  const Circle = phase === 'refreshing' ? DashedCircle : 'circle'
+  const SvgStyle = phase !== 'refreshing' ? RotatingSvgStyle : {}
+  const CircleStyle = phase === 'refreshing' ? DashedcircleStyle : {}
   const refreshed = phase === 'refreshed'
   return (
-    <Component
+    
+    <div
       key='pull'
       zIndex={zIndex}
+      className='cTgxiN'
       style={{
         top: Math.max(refreshed ? Math.atan(1) : p, 0) * max - 10,
         transform: `translate(-50%, -100%) scale(${refreshed ? p : 1},${refreshed ? p : 1})`,
-        backgroundColor: bgColor
+        backgroundColor: bgColor,
+        position: "absolute",
+        zIndex: zIndex,
+        left: "50%",
+        borderRadius: "20px",
+        width: "40px",
+        height: "40px",
+        boxShadow: `0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)`,
       }}
     >
-      <Svg
+      <style>
+      {`
+        @keyframes dashed {
+          0% {
+            stroke-dashoffset: 62px;
+          }
+          50% {
+            stroke-dashoffset: calc(62px/4);
+            transform: rotate(135deg);
+          }
+          100% {
+            stroke-dashoffset: 62px;
+            transform: rotate(450deg);
+          }
+        }
+
+        @keyframes rotating {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(270deg);
+          }
+        }
+      
+      
+      `
+      }
+      </style>
+      <svg
         style={{
-          transform:`rotate(${yRefreshing}deg)`
+          transform:`rotate(${yRefreshing}deg)`,
+          ...SvgStyle
         }}
         width={40}
         height={40}
         viewBox='0 0 40 40'
       >
-        <Circle
-          style={{ opacity:pMax }}
+        <circle
+          style={{ opacity:pMax, ...CircleStyle }}
           stroke={color}
           strokeWidth={2.5}
           strokeDasharray={[r * pMax * 0.6, r * (1 - pMax * 0.6)]}
@@ -93,8 +99,8 @@ export default (props, state) => {
               d='M23.5,19l5,5l5-5H23.5z'
             />
         }
-      </Svg>
-    </Component>
+      </svg>
+    </div>
   )
 }
 
